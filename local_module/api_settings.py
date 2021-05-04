@@ -1,0 +1,9 @@
+import os
+
+env = os.environ
+API_KEY = env["API_KEY"]
+API_SECRET_KEY = env["API_SECRET_KEY"]
+ACCESS_TOKEN = env["ACCESS_TOKEN"]
+ACCESS_SECRET = env["ACCESS_TOKEN_SECRET"]
+DB_ACCESS_TOKEN = env["DB_ACCESS_TOKEN"]
+UID = "rndShosha"
