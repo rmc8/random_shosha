@@ -1,0 +1,9 @@
+tweepy
+dropbox
+pandas
+xlrd
+xlwt
+lxml
+bs4
+openpyxl
+numpy

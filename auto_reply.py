@@ -7,7 +7,11 @@ import tweepy
 import dropbox
 import pandas as pd
 
-from local_module.api_settings import API_KEY, API_SECRET_KEY, ACCESS_TOKEN, ACCESS_SECRET, DB_ACCESS_TOKEN, UID
+from local_module.api_settings import (
+    API_KEY, API_SECRET_KEY, ACCESS_TOKEN, ACCESS_SECRET,
+    DB_ACCESS_TOKEN,
+    UID,
+)
 
 
 class StreamListener(tweepy.StreamListener):
@@ -25,21 +29,33 @@ class StreamListener(tweepy.StreamListener):
         refresh_sec: int = min_sec * refresh_min
         now = datetime.now()
         if self.followers is None or (now - self.dt).seconds >= refresh_sec:
-            self.followers = {fid for fid in tweepy.Cursor(self.api.followers_ids, user_id=self.me.id).items()}
+            self.followers = {fid for fid in
+                              tweepy.Cursor(self.api.followers_ids, user_id=self.me.id).items()}
             self.dt = now
     
     def is_follower(self, uid: int) -> bool:
         return uid in self.followers
+    
+    @staticmethod
+    def retweet_id(status):
+        try:
+            return status.retweeted_status.id
+        except Exception as e:
+            return e
     
     def tweet(self, status):
         requester: str = status.user.screen_name
         tweet_id: int = status.id
         file_path, tweet = self.dropbox.get_subject()
         tweet: str = f"@{requester} \n{tweet}"
+        retweet_id = self.retweet_id(status)
         try:
-            self.api.update_with_media(filename=file_path,
-                                       status=tweet,
-                                       in_reply_to_status_id=tweet_id)
+            if type(retweet_id) is not int:
+                self.api.update_with_media(
+                    filename=file_path,
+                    status=tweet,
+                    in_reply_to_status_id=tweet_id,
+                )
         finally:
             os.remove(file_path)
     
@@ -59,7 +75,8 @@ class DropBoxController:
         CARD_INDEX: int = 0
         card_list: list = random.choice(self.df.values.tolist())
         card_no: str = card_list[CARD_INDEX]
-        subjects = self.db_obj.files_list_folder(f"/{card_no}", recursive=True).entries
+        subjects = self.db_obj.files_list_folder(
+            f"/{card_no}", recursive=True).entries
         subject = random.choice(subjects)
         return subject, card_list
     
@@ -82,10 +99,12 @@ class DropBoxController:
         TITLE_INDEX = 1
         URL_INDEX = 2
         AUTHOR_INDEX = 3
-        tweet_lines = [f"『{card_list[TITLE_INDEX]}』",
-                       card_list[AUTHOR_INDEX],
-                       f"CARD: https://www.aozora.gr.jp/{card_list[URL_INDEX]}",
-                       f"#ランダム書写 #random_shosha #{card_name}"]
+        tweet_lines = [
+            f"『{card_list[TITLE_INDEX]}』",
+            card_list[AUTHOR_INDEX],
+            f"CARD: https://www.aozora.gr.jp/{card_list[URL_INDEX]}",
+            f"#{card_name}",
+        ]
         tweet = "\n".join(tweet_lines)
         return file_path, tweet
 
@@ -106,7 +125,7 @@ def dropbox_obj(token: str):
     return dbx
 
 
-def init_dir(dir_name):
+def init_dir(dir_name: str):
     if os.path.exists(dir_name):
         shutil.rmtree(dir_name)
     os.mkdir(dir_name)
@@ -122,12 +141,18 @@ def main():
     dbc = DropBoxController(dbx, df)
     
     # Twitter
-    gen_twi_obj = twitter_obj(API_KEY, API_SECRET_KEY, ACCESS_TOKEN, ACCESS_SECRET)
+    gen_twi_obj = twitter_obj(
+        API_KEY, API_SECRET_KEY,
+        ACCESS_TOKEN, ACCESS_SECRET,
+    )
     api = gen_twi_obj()
     my_info = api.me()
-    streamListener = StreamListener(dbo=dbc, api=api, me=my_info, target=UID)
+    streamListener = StreamListener(
+        dbo=dbc, api=api, me=my_info, target=UID
+    )
     stream = tweepy.Stream(auth=api.auth, listener=streamListener)
-    stream.filter(track=[f"@{UID}"], is_async=True)
+    print("Start!")
+    stream.filter(track=[f"@{UID}"], is_async=True, stall_warnings=True)
 
 
 if __name__ == "__main__":
