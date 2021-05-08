@@ -1,10 +1,12 @@
 import os
 import random
 import shutil
+from time import sleep
 from datetime import datetime
 
 import tweepy
 import dropbox
+from dropbox.exceptions import ApiError
 import pandas as pd
 
 from local_module.api_settings import (
@@ -93,8 +95,13 @@ class DropBoxController:
         return f"card{path[-19:-4]}"
     
     def get_subject(self):
-        subject, card_list = self._choice_subject()
-        file_path = self._dl_file(subject.path_display)
+        while True:
+            try:
+                subject, card_list = self._choice_subject()
+                file_path = self._dl_file(subject.path_display)
+                break
+            except ApiError:
+                sleep(1)
         card_name = self._get_card_name(subject.path_display)
         TITLE_INDEX = 1
         URL_INDEX = 2
