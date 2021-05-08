@@ -1,0 +1,12 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/random_shosha
+    docker:
+      -image: circleci/python:3.9
+  steps:
+    - checkout
+    - run:
+        command:
+          - pip install flake8
+          - flake8 --max-complexity 20
