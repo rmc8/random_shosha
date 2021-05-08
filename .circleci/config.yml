@@ -12,4 +12,3 @@ jobs:
       - run:
           name: pep8Check
           command: sudo flake8 --max-complexity 20
-
