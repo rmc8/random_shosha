@@ -4,11 +4,11 @@ jobs:
     working_directory: ~/random_shosha
     docker:
       -image: circleci/python:3.9
-  steps:
-    - flake8
-    - run:
-        name: addFlake8
-        command: pip install flake8
-    - run:
-        name: pep8Check
-        command: flake8 --max-complexity 20
+    steps:
+      - flake8
+      - run:
+          name: addFlake8
+          command: pip install flake8
+      - run:
+          name: pep8Check
+          command: flake8 --max-complexity 20
