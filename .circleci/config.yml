@@ -5,7 +5,7 @@ jobs:
     docker:
       -image: circleci/python:3.9
     steps:
-      - flake8
+      - checkout
       - run:
           name: addFlake8
           command: pip install flake8
