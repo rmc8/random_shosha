@@ -5,8 +5,10 @@ jobs:
     docker:
       -image: circleci/python:3.9
   steps:
-    - checkout
+    - flake8
     - run:
-        command:
-          - pip install flake8
-          - flake8 --max-complexity 20
+        name: addFlake8
+        command: pip install flake8
+    - run:
+        name: pep8Check
+        command: flake8 --max-complexity 20
