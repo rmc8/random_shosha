@@ -27,7 +27,7 @@ class StreamListener(tweepy.StreamListener):
     
     def refresh_followers(self):
         min_sec: int = 60
-        refresh_min: int = 15
+        refresh_min: int = 0
         refresh_sec: int = min_sec * refresh_min
         now = datetime.now()
         if self.followers is None or (now - self.dt).seconds >= refresh_sec:
@@ -73,7 +73,7 @@ class DropBoxController:
         self.db_obj = db_obj
         self.df = df
     
-    def _choice_subject(self):
+    def _choice_subject(self) -> tuple:
         CARD_INDEX: int = 0
         card_list: list = random.choice(self.df.values.tolist())
         card_no: str = card_list[CARD_INDEX]
@@ -94,7 +94,7 @@ class DropBoxController:
     def _get_card_name(path: str) -> str:
         return f"card{path[-19:-4]}"
     
-    def get_subject(self):
+    def get_subject(self) -> tuple:
         while True:
             try:
                 subject, card_list = self._choice_subject()
@@ -103,16 +103,16 @@ class DropBoxController:
             except ApiError:
                 sleep(1)
         card_name = self._get_card_name(subject.path_display)
-        TITLE_INDEX = 1
-        URL_INDEX = 2
-        AUTHOR_INDEX = 3
-        tweet_lines = [
+        TITLE_INDEX: int = 1
+        URL_INDEX: int = 2
+        AUTHOR_INDEX: int = 3
+        tweet_lines: list = [
             f"『{card_list[TITLE_INDEX]}』",
             card_list[AUTHOR_INDEX],
             f"CARD: https://www.aozora.gr.jp/{card_list[URL_INDEX]}",
             f"#{card_name}",
         ]
-        tweet = "\n".join(tweet_lines)
+        tweet: str = "\n".join(tweet_lines)
         return file_path, tweet
 
 

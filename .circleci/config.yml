@@ -11,4 +11,4 @@ jobs:
           command: sudo pip install flake8
       - run:
           name: pep8Check
-          command: sudo flake8 --max-complexity 20
+          command: sudo flake8 --max-complexity 10
